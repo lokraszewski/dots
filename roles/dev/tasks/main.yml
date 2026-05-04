@@ -1,0 +1,19 @@
+- name: Gather facts
+  ansible.builtin.setup:
+
+- name: Resolve packages (shared logic)
+  include_role:
+    name: common
+    tasks_from: resolve_packages
+
+- name: Fail if OS installer missing
+  stat:
+    path: "{{ role_path }}/tasks/install/{{ ansible_facts['distribution'] | lower }}.yml"
+  register: installer
+
+- fail:
+    msg: "Unsupported Distribution: {{ ansible_facts['distribution'] }}"
+  when: not installer.stat.exists
+
+- name: Include OS installer
+  include_tasks: "install/{{ ansible_facts['distribution'] | lower }}.yml"

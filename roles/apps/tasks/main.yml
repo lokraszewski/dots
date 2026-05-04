@@ -1,0 +1,5 @@
+- name: Gather facts
+  ansible.builtin.setup:
+
+- name: Include OS installer
+  include_tasks: "install/{{ ansible_facts['distribution'] | lower }}.yml"

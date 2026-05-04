@@ -1,0 +1,47 @@
+- name: Gather facts
+  ansible.builtin.setup:
+
+- name: Enable time synchronization (systemd)
+  become: true
+  ansible.builtin.systemd:
+    name: systemd-timesyncd
+    enabled: true
+    state: started
+  when: ansible_facts['system'] == "Linux"
+
+- name: Set timezone (optional default)
+  become: true
+  community.general.timezone:
+    name: Etc/GMT
+  when: ansible_facts['system'] == "Linux"
+
+- name: Resolve packages
+  include_role:
+    name: common
+    tasks_from: resolve_packages
+
+- name: Update packages
+  include_tasks: "update/{{ ansible_facts['distribution'] | lower }}.yml"
+
+- name: Include OS installer
+  include_tasks: "install/{{ ansible_facts['distribution'] | lower }}.yml"
+
+# Set fish sehll as the loging shell
+- name: Get fish shell path
+  ansible.builtin.command: which fish
+  register: fish_path
+  changed_when: false
+
+- name: Ensure fish is registered as valid shell
+  become: true
+  ansible.builtin.lineinfile:
+    path: /etc/shells
+    line: "{{ fish_path.stdout }}"
+    state: present
+  when: ansible_facts['system'] == "Linux"
+
+- name: Set fish as default shell
+  become: true
+  ansible.builtin.user:
+    name: "{{ ansible_user_id }}"
+    shell: "{{ fish_path.stdout }}"

@@ -1,0 +1,24 @@
+- name: Configure git identity
+  git_config:
+    name: user.name
+    value: "{{ git_identity.name }}"
+    scope: global
+
+- name: Configure git email
+  git_config:
+    name: user.email
+    value: "{{ git_identity.email }}"
+    scope: global
+
+# - name: Validate git signing key exists
+#   assert:
+#     that:
+#       - git_identity.signing_key is defined
+#       - git_identity.signing_key | length > 0
+#     fail_msg: "git_identity.signing_key is missing or empty for this host"
+
+# - name: Configure signing key
+#   git_config:
+#     name: user.signingkey
+#     value: "{{ git_identity.signing_key }}"
+#     scope: global

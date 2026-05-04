@@ -1,0 +1,10 @@
+# TODO: break down by aur/flatpak/etc
+packages:
+  - obsidian
+  - signal
+  - vlc
+  - zen-browser
+  - zotero
+  - bitwarden-cli
+  - discord
+

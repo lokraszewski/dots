@@ -1,0 +1,5 @@
+# private hosts
+inventory/hosts_private.yml
+
+# ansible
+.ansible

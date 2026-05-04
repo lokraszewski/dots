@@ -1,0 +1,7 @@
+- name: Update and upgrade system (Arch)
+  become: true
+  community.general.pacman:
+    update_cache: true
+    upgrade: true
+  when:
+    - upgrade_system | bool

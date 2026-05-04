@@ -1,0 +1,8 @@
+package_name_map:
+  Debian:
+    bat: batcat
+    fd: fd-find
+
+  Archlinux: {}
+  Darwin:
+    ttf-jetbrains-mono-nerd: font-jetbrains-mono-nerd-font

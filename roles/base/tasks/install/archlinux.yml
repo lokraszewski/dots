@@ -1,0 +1,5 @@
+- name: Install packages on Arch
+  become: true
+  community.general.pacman:
+    name: "{{ resolved_packages }}"
+    state: present

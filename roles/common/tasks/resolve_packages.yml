@@ -1,0 +1,18 @@
+- name: Ensure packages variable exists
+  assert:
+    that:
+      - packages is defined
+      - packages | length > 0
+    fail_msg: "packages must be defined before calling resolve_packages"
+
+- name: Initialize resolved package list
+  set_fact:
+    resolved_packages: []
+
+- name: Resolve package names per OS
+  set_fact:
+    resolved_packages: "{{ resolved_packages + [mapped_name] }}"
+  vars:
+    os_map: "{{ package_name_map.get(ansible_facts['distribution'], {}) }}"
+    mapped_name: "{{ os_map.get(item, item) }}"
+  loop: "{{ packages }}"

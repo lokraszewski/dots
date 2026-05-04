@@ -1,0 +1,12 @@
+- name: "Configure base system settings"
+  hosts: all
+  roles:
+    - base
+
+
+- name: "Configure CLI settings"
+  hosts: all
+  roles:
+    - cli
+
+

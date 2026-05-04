@@ -1,0 +1,21 @@
+- name: Gather facts
+  ansible.builtin.setup:
+
+- name: Resolve packages
+  include_role:
+    name: common
+    tasks_from: resolve_packages
+
+- name: Include OS installer
+  include_tasks: "install/{{ ansible_facts['distribution'] | lower }}.yml"
+
+
+- name: Write terminal font recommendation
+  copy:
+    dest: "{{ ansible_env.HOME }}/.terminal-font"
+    content: |
+      JetBrainsMono Nerd Font Mono
+      Recommended for:
+      - Fish shell
+      - tmux
+      - starship prompt

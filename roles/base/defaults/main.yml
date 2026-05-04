@@ -1,0 +1,10 @@
+packages:
+  - git
+  - curl
+  - wget
+  - unzip
+  - ca-certificates
+  - zsh
+  - fish
+
+upgrade_system: true
