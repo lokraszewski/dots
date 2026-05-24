@@ -27,15 +27,6 @@
   roles:
     - cli
 
-- name: Configure development tools and IDEs
-  hosts: dev
-  tags:
-    - dev
-    - tools
-    - ides
-  roles:
-    - dev
-
 - name: Configure Go development tools
   hosts: dev_go
   tags:

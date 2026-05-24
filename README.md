@@ -2,7 +2,7 @@
 
 Personal machines, work development machines, and temporary dev VMs managed with Ansible.
 
-This repo is organized around intent rather than operating system. The inventory decides which hosts receive each slice of configuration, and each role owns one narrow area: baseline system state, git identity, shared CLI setup, development tools, or GUI apps.
+This repo is organized around intent rather than operating system. The inventory decides which hosts receive each slice of configuration, and each role owns one narrow area: baseline system state, git identity, shared CLI setup, language tooling, or GUI apps.
 
 ## Layout
 
@@ -17,7 +17,6 @@ This repo is organized around intent rather than operating system. The inventory
 │   ├── font/              # terminal fonts
 │   ├── git/               # per-host git identity
 │   ├── cli/               # shared shell, tmux, neovim, CLI helpers
-│   ├── dev/               # general developer tools and IDE-related packages
 │   ├── dev_go/            # Go language toolchain
 │   ├── apps/              # personal and work GUI applications
 │   └── common/            # shared role helpers
@@ -37,9 +36,8 @@ Host grouping lives in `inventory/hosts.yml`.
 | `all` | Every managed host. Receives `base`, `font`, and `git`. |
 | `personal` | Personal machines. Receives personal GUI apps. |
 | `work` | Work machines. Receives work GUI apps and keeps work-specific targeting separate from personal config. |
-| `vm` | Temporary dev VMs. Gets CLI and general dev setup, but no GUI apps by default. |
+| `vm` | Temporary dev VMs. Gets CLI setup, but no GUI apps by default. |
 | `cli` | Hosts that should share fish/tmux/neovim and CLI helper behavior. |
-| `dev` | Machines that should receive developer tools and IDE support. |
 | `desktop` | Personal and work desktop/laptop machines. Useful for future GUI-wide targeting. |
 | `dev_go` | Hosts that should receive Go-specific development tools. |
 
@@ -47,10 +45,10 @@ The current hosts are:
 
 | Host | Groups |
 | --- | --- |
-| `icewind` | `personal`, `desktop`, `dev`, `cli`, `dev_go` |
-| `mithril` | `work`, `desktop`, `dev`, `cli`, `dev_go` |
+| `icewind` | `personal`, `desktop`, `cli`, `dev_go` |
+| `mithril` | `work`, `desktop`, `cli`, `dev_go` |
 
-Add temporary dev machines under `vm.hosts`. They will get `base`, `git`, `cli`, and `dev`, but not GUI apps. Add a VM under `dev_go` too when it needs the Go toolchain.
+Add temporary dev machines under `vm.hosts`. They will get `base`, `font`, `git`, and `cli`, but not GUI apps. Add a VM under `dev_go` too when it needs the Go toolchain.
 
 ## Roles
 
@@ -58,11 +56,9 @@ Add temporary dev machines under `vm.hosts`. They will get `base`, `git`, `cli`,
 
 `font` installs terminal fonts. It currently installs JetBrains Mono Nerd Font, writes `.terminal-font` as a small reminder for terminal profile setup, and configures VS Code to use the font.
 
-`git` configures `user.name` and `user.email` from the encrypted `git_identities` map in `secrets/secrets.yml`.
+`git` installs git and configures `user.name` and `user.email` from the encrypted `git_identities` map in `secrets/secrets.yml`.
 
-`cli` is for the shared terminal environment you want everywhere: fish, tmux, neovim, prompt tools, and small CLI helpers.
-
-`dev` is for developer workstations: compilers, language tooling, containers, SDKs, editors, IDE support, and other tools you do not necessarily want on a remote shell.
+`cli` is for the shared terminal environment you want everywhere: fish, tmux, neovim, prompt tools, and small CLI helpers such as `bat` and `fd`.
 
 `dev_go` is for Go-specific development. Use the same pattern for other languages, such as `dev_rust`, `dev_python`, or `dev_node`, when they deserve their own package list or setup tasks.
 
@@ -124,7 +120,6 @@ make update
 make fonts
 make git
 make cli
-make dev
 make dev-go
 make apps
 make personal-apps

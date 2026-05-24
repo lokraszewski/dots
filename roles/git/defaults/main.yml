@@ -1,1 +1,4 @@
+packages:
+  - git
+
 git_identities: {}
