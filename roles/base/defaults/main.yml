@@ -6,3 +6,4 @@ packages:
   - zsh
   - fish
 upgrade_system: true
+system_timezone: Etc/UTC

@@ -70,6 +70,8 @@ Add temporary dev machines under `vm.hosts`. They will get `base`, `font`, `git`
 
 Shared secrets and host-specific git identities live in `secrets/secrets.yml` and should stay encrypted with Ansible Vault.
 
+Non-secret host-specific settings live in `host_vars/<host>.yml`. For example, `host_vars/icewind.yml` sets `system_timezone: Etc/GMT`, while the default timezone is `Etc/UTC`.
+
 Git identities should use this shape:
 
 ```yaml
@@ -175,3 +177,13 @@ package_name_map:
 * [ ] https://github.com/fabioluciano/tmux-powerkit
 * [ ] https://github.com/romkatv/powerlevel10k
 * [ ] Configure with starship preset nerd-font-symbols -o ~/.config/starship.toml
+* [ ] https://github.com/catppuccin/starship
+
+zsh
+p10k
+tmux
+zoxide
+fzf
+eza
+bat
+antidote or zinit

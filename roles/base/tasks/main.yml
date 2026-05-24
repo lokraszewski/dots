@@ -14,8 +14,10 @@
 - name: Set timezone (optional default)
   become: true
   community.general.timezone:
-    name: Etc/GMT
-  when: ansible_facts['system'] == "Linux"
+    name: "{{ system_timezone }}"
+  when:
+    - ansible_facts['system'] == "Linux"
+    - system_timezone | length > 0
 
 - name: Resolve packages
   include_role:
