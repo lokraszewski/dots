@@ -1,10 +1,14 @@
 # TODO: break down by aur/flatpak/etc
-packages:
+personal_apps:
   - obsidian
   - signal
   - vlc
-  - zen-browser
-  - zotero
   - bitwarden-cli
   - discord
 
+personal_aur_apps:
+  - zen-browser
+
+work_apps: []
+
+packages: "{{ personal_apps }}"

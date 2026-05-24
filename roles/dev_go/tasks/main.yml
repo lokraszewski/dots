@@ -14,16 +14,3 @@
     ansible_platform: "{{ 'darwin' if ansible_facts['system'] == 'Darwin' else ansible_facts['distribution'] | lower }}"
   tags:
     - packages
-
-
-- name: Write terminal font recommendation
-  ansible.builtin.copy:
-    dest: "{{ ansible_facts['env']['HOME'] }}/.terminal-font"
-    content: |
-      JetBrainsMono Nerd Font Mono
-      Recommended for:
-      - Fish shell
-      - tmux
-      - starship prompt
-  tags:
-    - shell

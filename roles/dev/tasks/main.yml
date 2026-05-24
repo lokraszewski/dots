@@ -5,15 +5,23 @@
   include_role:
     name: common
     tasks_from: resolve_packages
+  tags:
+    - packages
 
 - name: Fail if OS installer missing
-  stat:
-    path: "{{ role_path }}/tasks/install/{{ ansible_facts['distribution'] | lower }}.yml"
+  ansible.builtin.stat:
+    path: "{{ role_path }}/tasks/install/{{ ansible_platform }}.yml"
   register: installer
+  vars:
+    ansible_platform: "{{ 'darwin' if ansible_facts['system'] == 'Darwin' else ansible_facts['distribution'] | lower }}"
 
-- fail:
+- ansible.builtin.fail:
     msg: "Unsupported Distribution: {{ ansible_facts['distribution'] }}"
   when: not installer.stat.exists
 
 - name: Include OS installer
-  include_tasks: "install/{{ ansible_facts['distribution'] | lower }}.yml"
+  include_tasks: "install/{{ ansible_platform }}.yml"
+  vars:
+    ansible_platform: "{{ 'darwin' if ansible_facts['system'] == 'Darwin' else ansible_facts['distribution'] | lower }}"
+  tags:
+    - packages

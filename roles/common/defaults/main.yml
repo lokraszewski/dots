@@ -1,8 +1,8 @@
 package_name_map:
-  Debian:
+  debian:
     bat: batcat
     fd: fd-find
-
-  Archlinux: {}
-  Darwin:
+  archlinux:
+    signal: signal-desktop
+  darwin:
     ttf-jetbrains-mono-nerd: font-jetbrains-mono-nerd-font

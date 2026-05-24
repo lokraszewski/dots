@@ -1,12 +1,66 @@
-- name: "Configure base system settings"
+- name: Configure baseline system settings
   hosts: all
+  tags:
+    - base
+    - baseline
   roles:
     - base
 
-
-- name: "Configure CLI settings"
+- name: Configure host git identity
   hosts: all
+  vars_files:
+    - secrets/secrets.yml
+  tags:
+    - git
+    - identity
+  roles:
+    - git
+
+- name: Configure shared CLI tools and shell helpers
+  hosts: cli
+  tags:
+    - cli
+    - shell
   roles:
     - cli
 
+- name: Configure development tools and IDEs
+  hosts: dev
+  tags:
+    - dev
+    - tools
+    - ides
+  roles:
+    - dev
 
+- name: Configure Go development tools
+  hosts: dev_go
+  tags:
+    - dev-go
+    - go
+  roles:
+    - dev_go
+
+- name: Configure personal GUI applications
+  hosts: personal
+  tags:
+    - apps
+    - gui
+    - personal
+    - personal-apps
+  roles:
+    - role: apps
+      vars:
+        packages: "{{ personal_apps }}"
+
+- name: Configure work GUI applications
+  hosts: work
+  tags:
+    - apps
+    - gui
+    - work
+    - work-apps
+  roles:
+    - role: apps
+      vars:
+        packages: "{{ work_apps }}"

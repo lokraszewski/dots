@@ -6,5 +6,4 @@ packages:
   - ca-certificates
   - zsh
   - fish
-
 upgrade_system: true

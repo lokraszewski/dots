@@ -1,4 +1,1 @@
-git_identity:
-  name: "Unknown User"
-  email: "unknown@local"
-  signing_key: ""
+git_identities: {}

@@ -13,6 +13,7 @@
   set_fact:
     resolved_packages: "{{ resolved_packages + [mapped_name] }}"
   vars:
-    os_map: "{{ package_name_map.get(ansible_facts['distribution'], {}) }}"
+    ansible_platform: "{{ 'darwin' if ansible_facts['system'] == 'Darwin' else ansible_facts['distribution'] | lower }}"
+    os_map: "{{ package_name_map.get(ansible_platform, {}) }}"
     mapped_name: "{{ os_map.get(item, item) }}"
   loop: "{{ packages }}"
