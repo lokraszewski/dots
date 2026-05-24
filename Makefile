@@ -29,7 +29,7 @@ ANSIBLE_ARGS = -i $(INVENTORY) \
 
 ANSIBLE = ansible-playbook $(ANSIBLE_ARGS) $(PLAYBOOK)
 
-.PHONY: help run check diff local syntax list-hosts list-tasks base update git cli dev dev-go apps personal-apps work-apps personal work vm vault-edit vault-view
+.PHONY: help run check diff local syntax list-hosts list-tasks base update fonts git cli dev dev-go apps personal-apps work-apps personal work vm vault-edit vault-view
 
 help:
 	@printf '%s\n' \
@@ -43,6 +43,7 @@ help:
 		'  make list-tasks           Show playbook task list' \
 		'  make base                 Baseline packages and system settings' \
 		'  make update               Baseline package updates only' \
+		'  make fonts                Install terminal fonts' \
 		'  make git                  Configure per-host git identity' \
 		'  make cli                  Shared shell, tmux, neovim, and CLI helpers' \
 		'  make dev                  Developer tools and IDEs' \
@@ -82,6 +83,9 @@ base:
 
 update:
 	$(MAKE) run TAGS=update
+
+fonts:
+	$(MAKE) run TAGS=fonts
 
 git:
 	$(MAKE) run TAGS=git

@@ -1,0 +1,8 @@
+packages:
+  - ttf-jetbrains-mono-nerd
+
+terminal_font_name: JetBrainsMono Nerd Font Mono
+
+vscode_font_settings:
+  editor.fontFamily: "'JetBrainsMono Nerd Font Mono', 'JetBrains Mono', monospace"
+  terminal.integrated.fontFamily: "JetBrainsMono Nerd Font Mono"

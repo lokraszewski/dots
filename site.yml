@@ -1,10 +1,13 @@
 - name: Configure baseline system settings
   hosts: all
-  tags:
-    - base
-    - baseline
   roles:
-    - base
+    - role: base
+      tags:
+        - base
+        - baseline
+    - role: font
+      tags:
+        - fonts
 
 - name: Configure host git identity
   hosts: all
