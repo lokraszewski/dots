@@ -169,3 +169,9 @@ package_name_map:
   archlinux:
     fd: fd
 ```
+
+
+## TODO
+* [ ] https://github.com/fabioluciano/tmux-powerkit
+* [ ] https://github.com/romkatv/powerlevel10k
+* [ ] Configure with starship preset nerd-font-symbols -o ~/.config/starship.toml
