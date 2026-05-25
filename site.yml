@@ -8,6 +8,10 @@
     - role: font
       tags:
         - fonts
+    - role: foot
+      tags:
+        - foot
+        - fonts
 
 - name: Configure host git identity
   hosts: all
