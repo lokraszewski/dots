@@ -1,8 +1,1 @@
-package_name_map:
-  debian:
-    bat: batcat
-    fd: fd-find
-  archlinux:
-    signal: signal-desktop
-  darwin:
-    ttf-jetbrains-mono-nerd: font-jetbrains-mono-nerd-font
+# Common role defaults — package_name_map removed; each role now declares per-OS package lists.

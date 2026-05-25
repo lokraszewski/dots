@@ -1,10 +1,1 @@
-package_name_map:
-  debian:
-    bat: batcat
-    fd: fd-find
-  archlinux:
-    signal: signal-desktop
-  darwin:
-    ttf-jetbrains-mono-nerd: font-jetbrains-mono-nerd-font
-    aws-cli: awscli
-    google-cloud-cli: google-cloud-sdk
+# Per-OS package lists are declared directly in each role's defaults/main.yml

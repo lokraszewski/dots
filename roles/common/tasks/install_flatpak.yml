@@ -1,0 +1,19 @@
+- name: Ensure flatpak is installed
+  become: true
+  ansible.builtin.package:
+    name: flatpak
+    state: present
+
+- name: Add Flathub remote (user)
+  community.general.flatpak_remote:
+    name: flathub
+    flatpakrepo_url: https://dl.flathub.org/repo/flathub.flatpakrepo
+    state: present
+    method: user
+
+- name: Install Flatpak apps
+  community.general.flatpak:
+    name: "{{ item }}"
+    state: present
+    method: user
+  loop: "{{ packages['flatpak'] | default([]) }}"

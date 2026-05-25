@@ -1,9 +1,20 @@
 packages:
-  - gh
-  - kubectl
-  - k9s
-  - aws-cli
-  - google-cloud-cli
-  - azure-cli
-  - terraform
-  - opentofu
+  archlinux:
+    - github-cli
+    - kubectl
+    - k9s
+    - aws-cli
+    - azure-cli
+    - terraform
+    - opentofu
+  archlinux_aur:
+    - google-cloud-cli
+  darwin:
+    - gh
+    - kubectl
+    - k9s
+    - awscli
+    - azure-cli
+    - terraform
+    - opentofu
+    - google-cloud-sdk

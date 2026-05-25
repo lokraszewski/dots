@@ -1,0 +1,14 @@
+- name: Install packages via pacman
+  become: true
+  community.general.pacman:
+    name: "{{ packages['archlinux'] | default([]) }}"
+    state: present
+  when: packages['archlinux'] | default([]) | length > 0
+
+- name: Install AUR packages
+  ansible.builtin.include_tasks: install_aur.yml
+  when: packages['archlinux_aur'] | default([]) | length > 0
+
+- name: Install Flatpak apps
+  ansible.builtin.include_tasks: install_flatpak.yml
+  when: packages['flatpak'] | default([]) | length > 0

@@ -1,9 +1,15 @@
 packages:
-  - curl
-  - wget
-  - unzip
-  - ca-certificates
-  - zsh
-  - fish
+  archlinux:
+    - curl
+    - wget
+    - unzip
+    - ca-certificates
+    - zsh
+    - fish
+  darwin:
+    - curl
+    - wget
+    - fish
+
 upgrade_system: true
 system_timezone: Etc/UTC

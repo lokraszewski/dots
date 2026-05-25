@@ -1,14 +1,24 @@
-# TODO: break down by aur/flatpak/etc
 personal_apps:
-  - obsidian
-  - signal
-  - vlc
-  - bitwarden-cli
-  - discord
+  archlinux:
+    - bitwarden-cli
+  archlinux_aur:
+    - zen-browser
+  flatpak:
+    - md.obsidian.Obsidian
+    - org.signal.Signal
+    - org.videolan.VLC
+    - com.discordapp.Discord
+  darwin:
+    - obsidian
+    - signal
+    - vlc
+    - bitwarden-cli
+    - discord
 
-personal_aur_apps:
-  - zen-browser
-
-work_apps: []
+work_apps:
+  archlinux: []
+  archlinux_aur: []
+  flatpak: []
+  darwin: []
 
 packages: "{{ personal_apps }}"

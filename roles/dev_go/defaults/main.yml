@@ -1,2 +1,5 @@
 packages:
-  - go
+  archlinux:
+    - go
+  darwin:
+    - go

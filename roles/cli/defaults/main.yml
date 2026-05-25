@@ -1,5 +1,10 @@
 packages:
-  - bat
-  - fd
-  - inetutils
-  - tmux
+  archlinux:
+    - bat
+    - fd
+    - inetutils
+    - tmux
+  darwin:
+    - bat
+    - fd
+    - tmux

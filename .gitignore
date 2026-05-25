@@ -1,4 +1,4 @@
-# private hosts
+# private hosts and connection details
 inventory/hosts_private.yml
 
 # ansible

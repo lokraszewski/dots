@@ -19,24 +19,16 @@
     - ansible_facts['system'] == "Linux"
     - system_timezone | length > 0
 
-- name: Resolve packages
-  include_role:
-    name: common
-    tasks_from: resolve_packages
-  tags:
-    - packages
-
 - name: Update packages
-  include_tasks: "update/{{ ansible_platform }}.yml"
-  vars:
-    ansible_platform: "{{ 'darwin' if ansible_facts['system'] == 'Darwin' else ansible_facts['distribution'] | lower }}"
+  ansible.builtin.include_tasks:
+    file: "update/{{ 'darwin' if ansible_facts['system'] == 'Darwin' else ansible_facts['distribution'] | lower }}.yml"
   tags:
     - update
 
-- name: Include OS installer
-  include_tasks: "install/{{ ansible_platform }}.yml"
-  vars:
-    ansible_platform: "{{ 'darwin' if ansible_facts['system'] == 'Darwin' else ansible_facts['distribution'] | lower }}"
+- name: Install packages
+  include_role:
+    name: common
+    tasks_from: install
   tags:
     - packages
 

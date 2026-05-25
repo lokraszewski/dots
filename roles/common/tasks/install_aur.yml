@@ -1,0 +1,7 @@
+- name: Ensure AUR helper (yay) is available
+  ansible.builtin.include_tasks: ensure_aur_helper.yml
+
+- name: Install AUR packages with yay
+  ansible.builtin.command:
+    cmd: "yay -S --noconfirm --needed {{ packages['archlinux_aur'] | join(' ') }}"
+  changed_when: true

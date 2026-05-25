@@ -1,0 +1,2 @@
+- name: Install packages for current OS
+  ansible.builtin.include_tasks: "install_{{ 'darwin' if ansible_facts['system'] == 'Darwin' else ansible_facts['distribution'] | lower }}.yml"

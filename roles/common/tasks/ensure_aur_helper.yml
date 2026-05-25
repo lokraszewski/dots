@@ -1,0 +1,19 @@
+- name: Check if yay is installed
+  ansible.builtin.command: which yay
+  register: yay_check
+  changed_when: false
+  failed_when: false
+
+- name: Clone yay-bin from AUR
+  ansible.builtin.git:
+    repo: https://aur.archlinux.org/yay-bin.git
+    dest: /tmp/yay-build
+    depth: 1
+  when: yay_check.rc != 0
+
+- name: Build and install yay
+  ansible.builtin.command:
+    cmd: makepkg -si --noconfirm
+    chdir: /tmp/yay-build
+  when: yay_check.rc != 0
+  changed_when: true

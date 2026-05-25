@@ -1,0 +1,5 @@
+- name: Install packages via Homebrew
+  community.general.homebrew:
+    name: "{{ packages['darwin'] | default([]) }}"
+    state: present
+  when: packages['darwin'] | default([]) | length > 0

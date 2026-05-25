@@ -1,4 +1,0 @@
-- name: Install Go packages on macOS
-  community.general.homebrew:
-    name: "{{ resolved_packages }}"
-    state: present
