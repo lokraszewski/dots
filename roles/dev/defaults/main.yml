@@ -1,0 +1,9 @@
+packages:
+  - gh
+  - kubectl
+  - k9s
+  - aws-cli
+  - google-cloud-cli
+  - azure-cli
+  - terraform
+  - opentofu

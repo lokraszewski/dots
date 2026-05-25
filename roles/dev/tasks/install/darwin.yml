@@ -1,0 +1,4 @@
+- name: Install dev packages on macOS
+  community.general.homebrew:
+    name: "{{ resolved_packages }}"
+    state: present

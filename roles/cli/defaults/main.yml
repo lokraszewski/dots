@@ -1,4 +1,5 @@
 packages:
   - bat
   - fd
+  - inetutils
   - tmux

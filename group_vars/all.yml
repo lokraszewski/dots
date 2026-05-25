@@ -6,3 +6,5 @@ package_name_map:
     signal: signal-desktop
   darwin:
     ttf-jetbrains-mono-nerd: font-jetbrains-mono-nerd-font
+    aws-cli: awscli
+    google-cloud-cli: google-cloud-sdk

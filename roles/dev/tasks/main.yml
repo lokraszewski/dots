@@ -1,0 +1,16 @@
+- name: Gather facts
+  ansible.builtin.setup:
+
+- name: Resolve packages
+  include_role:
+    name: common
+    tasks_from: resolve_packages
+  tags:
+    - packages
+
+- name: Include OS installer
+  include_tasks: "install/{{ ansible_platform }}.yml"
+  vars:
+    ansible_platform: "{{ 'darwin' if ansible_facts['system'] == 'Darwin' else ansible_facts['distribution'] | lower }}"
+  tags:
+    - packages

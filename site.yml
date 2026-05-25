@@ -42,6 +42,13 @@
   roles:
     - dev_go
 
+- name: Configure dev tools (cloud, k8s, IaC)
+  hosts: dev
+  tags:
+    - dev
+  roles:
+    - dev
+
 - name: Configure personal GUI applications
   hosts: personal
   tags:
