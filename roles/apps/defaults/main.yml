@@ -2,7 +2,7 @@ personal_apps:
   archlinux:
     - bitwarden-cli
   archlinux_aur:
-    - zen-browser
+    - zen-browser-bin
   flatpak:
     - md.obsidian.Obsidian
     - org.signal.Signal
