@@ -29,7 +29,7 @@ ANSIBLE_ARGS = -i $(INVENTORY) \
 
 ANSIBLE = ansible-playbook $(ANSIBLE_ARGS) $(PLAYBOOK)
 
-.PHONY: help run check diff local syntax list-hosts list-tasks base update fonts git cli dev-go apps personal-apps work-apps personal work vm vault-edit vault-view
+.PHONY: help run check diff local syntax list-hosts list-tasks base update fonts git cli dev-go apps personal-apps work-apps personal work vm
 
 help:
 	@printf '%s\n' \
@@ -52,9 +52,7 @@ help:
 		'  make work-apps            Work GUI applications' \
 		'  make personal             Run personal-machine slice' \
 		'  make work                 Run work-machine slice' \
-		'  make vm                   Run temporary VM slice' \
-		'  make vault-edit           Edit shared encrypted secrets' \
-		'  make vault-view           View shared encrypted secrets'
+		'  make vm                   Run temporary VM slice'
 
 run:
 	$(ANSIBLE)
@@ -112,9 +110,3 @@ work:
 
 vm:
 	$(MAKE) run LIMIT=vm
-
-vault-edit:
-	ansible-vault edit secrets/secrets.yml
-
-vault-view:
-	ansible-vault view secrets/secrets.yml

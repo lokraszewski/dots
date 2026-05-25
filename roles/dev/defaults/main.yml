@@ -7,8 +7,7 @@ packages:
     - azure-cli
     - terraform
     - opentofu
-  archlinux_aur:
-    - google-cloud-cli
+  archlinux_aur: {}
   darwin:
     - gh
     - kubectl

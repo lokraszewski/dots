@@ -14,9 +14,7 @@
         - fonts
 
 - name: Configure host git identity
-  hosts: all
-  vars_files:
-    - secrets/secrets.yml
+  hosts: dev
   tags:
     - git
     - identity

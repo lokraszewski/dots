@@ -2,24 +2,28 @@
 
 Personal machines, work development machines, and temporary dev VMs managed with Ansible.
 
-This repo is organized around intent rather than operating system. The inventory decides which hosts receive each slice of configuration, and each role owns one narrow area: baseline system state, git identity, shared CLI setup, language tooling, or GUI apps.
-
 ## Layout
 
 ```text
 .
 ├── ansible.cfg
-├── inventory/hosts.yml
+├── inventory/
+│   └── hosts.yml              # group structure (committed)
 ├── group_vars/all.yml
-├── secrets/secrets.yml    # encrypted secrets and per-host identities
+├── host_vars/<host>/
+│   ├── main.yml               # public host settings
+│   └── vault.yml              # encrypted per-host secrets
 ├── roles/
-│   ├── base/              # baseline packages, package updates, shell default
-│   ├── font/              # terminal fonts
-│   ├── git/               # per-host git identity
-│   ├── cli/               # shared shell, tmux, neovim, CLI helpers
-│   ├── dev_go/            # Go language toolchain
-│   ├── apps/              # personal and work GUI applications
-│   └── common/            # shared role helpers
+│   ├── base/                  # baseline packages, package updates, time sync, timezone, shell
+│   ├── font/                  # fonts (JetBrainsMono Nerd Font)
+│   ├── foot/                  # foot terminal emulator config
+│   ├── git/                   # per-host git identity and configs
+│   ├── cli/                   # shared CLI tools: bat, fd, inetutils, tmux
+│   ├── tmux/                  # tmux config, TPM, powerkit, localremote plugin
+│   ├── dev/                   # cloud and IaC tools: gh, kubectl, k9s, aws, gcp, azure, terraform, tofu
+│   ├── dev_go/                # Go language toolchain
+│   ├── apps/                  # personal and work GUI applications
+│   └── common/                # shared install helpers (pacman, AUR, Flatpak, Homebrew)
 ├── scripts/
 │   ├── bwunlock.sh
 │   └── vaultpass.sh
@@ -29,66 +33,66 @@ This repo is organized around intent rather than operating system. The inventory
 
 ## Inventory Model
 
-Host grouping lives in `inventory/hosts.yml`.
+Host grouping lives in `inventory/hosts.yml`. Connection details for each host live in `host_vars/<host>/vault.yml` (gitignored).
 
 | Group | Purpose |
 | --- | --- |
-| `all` | Every managed host. Receives `base`, `font`, and `git`. |
+| `all` | Every managed host. Receives `base`, `font`, `foot`, and `git`. |
 | `personal` | Personal machines. Receives personal GUI apps. |
-| `work` | Work machines. Receives work GUI apps and keeps work-specific targeting separate from personal config. |
-| `vm` | Temporary dev VMs. Gets CLI setup, but no GUI apps by default. |
-| `cli` | Hosts that should share fish/tmux/neovim and CLI helper behavior. |
-| `desktop` | Personal and work desktop/laptop machines. Useful for future GUI-wide targeting. |
-| `dev_go` | Hosts that should receive Go-specific development tools. |
+| `work` | Work machines. Receives work GUI apps. |
+| `vm` | Temporary dev VMs. Gets CLI setup, but no GUI apps. |
+| `desktop` | Children: `personal`, `work`. GUI-capable machines. |
+| `cli` | Children: `desktop`, `vm`. Receives fish, tmux, and CLI helpers. |
+| `dev_go` | Children: `personal`, `work`. Receives the Go toolchain. |
+| `dev` | Children: `personal`, `work`. Receives cloud/k8s/IaC tools. |
 
-The current hosts are:
+Current hosts:
 
 | Host | Groups |
 | --- | --- |
-| `icewind` | `personal`, `desktop`, `cli`, `dev_go` |
-| `mithril` | `work`, `desktop`, `cli`, `dev_go` |
+| `icewind` | `personal`, `desktop`, `cli`, `dev_go`, `dev` |
+| `mithril` | `work`, `desktop`, `cli`, `dev_go`, `dev` |
 
-Add temporary dev machines under `vm.hosts`. They will get `base`, `font`, `git`, and `cli`, but not GUI apps. Add a VM under `dev_go` too when it needs the Go toolchain.
+Add temporary dev machines under `vm.hosts` — they get `base`, `font`, `git`, and `cli`, but not GUI apps. Add under `dev_go` or `dev` when the tooling is needed.
 
-## Roles
+## Package Management
 
-`base` configures baseline system state: core packages, package updates, time sync, timezone, and the default shell. Keep this role boring and universal.
-
-`font` installs terminal fonts. It currently installs JetBrains Mono Nerd Font, writes `.terminal-font` as a small reminder for terminal profile setup, and configures VS Code to use the font.
-
-`git` installs git and configures `user.name` and `user.email` from the encrypted `git_identities` map in `secrets/secrets.yml`.
-
-`cli` is for the shared terminal environment you want everywhere: fish, tmux, neovim, prompt tools, and small CLI helpers such as `bat` and `fd`.
-
-`dev_go` is for Go-specific development. Use the same pattern for other languages, such as `dev_rust`, `dev_python`, or `dev_node`, when they deserve their own package list or setup tasks.
-
-`apps` installs GUI applications. The `personal` play passes `personal_apps`; the `work` play passes `work_apps`. Keep the lists separate in `roles/apps/defaults/main.yml` or override them from group vars if a package list needs to stay private.
-
-`common` holds shared helper tasks. Right now it resolves package names through `package_name_map`, so roles can use friendly package names while OS-specific mappings stay centralized.
-
-## Secrets And Identity
-
-Shared secrets and host-specific git identities live in `secrets/secrets.yml` and should stay encrypted with Ansible Vault.
-
-Non-secret host-specific settings live in `host_vars/<host>.yml`. For example, `host_vars/icewind.yml` sets `system_timezone: Etc/GMT`, while the default timezone is `Etc/UTC`.
-
-Git identities should use this shape:
+Each role declares its own package lists in `defaults/main.yml`:
 
 ```yaml
-git_identities:
-  icewind:
-    name: "Personal Name"
-    email: "personal@example.com"
-    signing_key: ""
-  mithril:
-    name: "Work Name"
-    email: "work@example.com"
-    signing_key: ""
+packages:
+  archlinux:
+    - some-package
+  archlinux_aur:
+    - aur-only-package
+  flatpak:
+    - org.example.App
+  darwin:
+    - homebrew-package
 ```
 
-The repo is configured to use `scripts/vaultpass.sh` through `ansible.cfg`, so normal Ansible and Make targets can unlock vault data through your Bitwarden-backed workflow.
+`common/tasks/install.yml` dispatches to the right installer. AUR installs use `yay` (bootstrapped automatically if absent). Flatpak installs ensure the Flathub remote is registered first.
 
-First-time Bitwarden setup:
+## Secrets and Identity
+
+Per-host secrets live in `host_vars/<host>/vault.yml` (vault-encrypted, committed). This includes the become password and git identity (name, email, signing key).
+
+Connection details (`ansible_host`, `ansible_user`, `ansible_ssh_private_key_file`) live in `host_vars/<host>/private.yml` (gitignored). Copy `host_vars/<host>/private.yml.example` as a starting point.
+
+`host_vars/<host>/vault.yml` shape:
+
+```yaml
+ansible_become_password: "sudo-password"
+
+git_identity:
+  name: "Your Name"
+  email: "your@example.com"
+  signing_key: "~/.ssh/id_ed25519.pub"
+```
+
+Git commits are signed with SSH. The role configures `gpg.format = ssh`, sets `commit.gpgsign` and `tag.gpgsign` to true, and writes `~/.ssh/allowed_signers` from the public key so `git log --show-signature` works locally.
+
+The repo uses `scripts/vaultpass.sh` (via `ansible.cfg`) to unlock vault data through Bitwarden:
 
 ```sh
 bw login
@@ -99,8 +103,8 @@ export BW_SESSION="your-session-token"
 Useful vault commands:
 
 ```sh
-make vault-edit
-make vault-view
+ansible-vault edit host_vars/<host>/vault.yml
+ansible-vault create host_vars/<host>/vault.yml
 ```
 
 ## Common Commands
@@ -137,12 +141,6 @@ make work
 make vm
 ```
 
-Run against the current machine over a local connection:
-
-```sh
-make local LIMIT=icewind
-```
-
 Pass extra Ansible controls when needed:
 
 ```sh
@@ -152,38 +150,8 @@ make run SKIP_TAGS=update
 make run EXTRA_VARS='upgrade_system=false'
 ```
 
-## Adding A Host
+## Adding a Host
 
-1. Add the host to `inventory/hosts.yml` under the right groups.
-2. Add the host's git identity to `git_identities` in `secrets/secrets.yml`.
+1. Add the host to the right groups in `inventory/hosts.yml`.
+2. Create `host_vars/<host>/{main,vault}.yml` with at minimum `system_timezone`.
 3. Run `make syntax`, then `make check LIMIT=<host>`, then `make run LIMIT=<host>`.
-
-## Package Names
-
-Role defaults declare package intent in `packages`. If a package has different names across platforms, add the translation to `package_name_map` in `group_vars/all.yml`.
-
-Example:
-
-```yaml
-package_name_map:
-  darwin:
-    fd: fd
-  archlinux:
-    fd: fd
-```
-
-
-## TODO
-* [x] https://github.com/fabioluciano/tmux-powerkit
-* [ ] https://github.com/romkatv/powerlevel10k
-* [ ] Configure with starship preset nerd-font-symbols -o ~/.config/starship.toml
-* [ ] https://github.com/catppuccin/starship
-
-zsh
-p10k
-tmux
-zoxide
-fzf
-eza
-bat
-antidote or zinit

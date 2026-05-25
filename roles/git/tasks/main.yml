@@ -24,39 +24,68 @@
 - name: Validate git identity
   ansible.builtin.assert:
     that:
-      - git_identity_effective.name is defined
-      - git_identity_effective.email is defined
-      - git_identity_effective.name | length > 0
-      - git_identity_effective.email | length > 0
-    fail_msg: "git identity for this host must be set in secrets/secrets.yml under git_identities.<inventory_hostname>."
-  vars:
-    git_identity_effective: "{{ git_identities.get(inventory_hostname, {}) }}"
+      - git_identity.name is defined
+      - git_identity.email is defined
+      - git_identity.name | length > 0
+      - git_identity.email | length > 0
+    fail_msg: "git identity for this host must be set in host_vars/<inventory_hostname>/vault.yml under git_identity."
 
 - name: Configure git identity
   community.general.git_config:
     name: user.name
-    value: "{{ git_identity_effective.name }}"
+    value: "{{ git_identity.name }}"
     scope: global
-  vars:
-    git_identity_effective: "{{ git_identities.get(inventory_hostname, {}) }}"
 
 - name: Configure git email
   community.general.git_config:
     name: user.email
-    value: "{{ git_identity_effective.email }}"
+    value: "{{ git_identity.email }}"
     scope: global
-  vars:
-    git_identity_effective: "{{ git_identities.get(inventory_hostname, {}) }}"
 
-# - name: Validate git signing key exists
-#   assert:
-#     that:
-#       - git_identity_effective.signing_key is defined
-#       - git_identity_effective.signing_key | length > 0
-#     fail_msg: "git signing key is missing or empty for this host"
+- name: Validate git signing key
+  ansible.builtin.assert:
+    that:
+      - git_identity.signing_key is defined
+      - git_identity.signing_key | length > 0
+    fail_msg: "git_identity.signing_key must be set in host_vars/<inventory_hostname>/vault.yml (path to .pub file, e.g. ~/.ssh/id_ed25519.pub)"
 
-# - name: Configure signing key
-#   git_config:
-#     name: user.signingkey
-#     value: "{{ git_identity_effective.signing_key }}"
-#     scope: global
+- name: Configure signing key path
+  community.general.git_config:
+    name: user.signingkey
+    value: "{{ git_identity.signing_key }}"
+    scope: global
+
+- name: Configure SSH signing format
+  community.general.git_config:
+    name: gpg.format
+    value: ssh
+    scope: global
+
+- name: Sign commits by default
+  community.general.git_config:
+    name: commit.gpgsign
+    value: "true"
+    scope: global
+
+- name: Sign tags by default
+  community.general.git_config:
+    name: tag.gpgsign
+    value: "true"
+    scope: global
+
+- name: Read SSH public key for allowed signers
+  ansible.builtin.slurp:
+    src: "{{ git_identity.signing_key | expanduser }}"
+  register: signing_pubkey
+
+- name: Write allowed signers file
+  ansible.builtin.copy:
+    content: "{{ git_identity.email }} {{ signing_pubkey.content | b64decode | trim }}\n"
+    dest: "{{ ansible_facts['user_dir'] }}/.ssh/allowed_signers"
+    mode: "0644"
+
+- name: Configure allowed signers file
+  community.general.git_config:
+    name: gpg.ssh.allowedSignersFile
+    value: "~/.ssh/allowed_signers"
+    scope: global
