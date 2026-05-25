@@ -174,7 +174,7 @@ package_name_map:
 
 
 ## TODO
-* [ ] https://github.com/fabioluciano/tmux-powerkit
+* [x] https://github.com/fabioluciano/tmux-powerkit
 * [ ] https://github.com/romkatv/powerlevel10k
 * [ ] Configure with starship preset nerd-font-symbols -o ~/.config/starship.toml
 * [ ] https://github.com/catppuccin/starship

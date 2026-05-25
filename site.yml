@@ -26,6 +26,9 @@
     - shell
   roles:
     - cli
+    - role: tmux
+      tags:
+        - tmux
 
 - name: Configure Go development tools
   hosts: dev_go
