@@ -31,82 +31,82 @@ ANSIBLE = ansible-playbook $(ANSIBLE_ARGS) $(PLAYBOOK)
 
 .PHONY: help run check diff local syntax list-hosts list-tasks base update fonts git cli dev-go apps personal-apps work-apps personal work vm
 
+## Show this help
 help:
-	@printf '%s\n' \
-		'Targets:' \
-		'  make run                 Run the full site playbook' \
-		'  make local LIMIT=host      Run against a host over local connection' \
-		'  make check                Dry-run the full playbook' \
-		'  make diff                 Dry-run with diffs' \
-		'  make syntax               Run ansible syntax check' \
-		'  make list-hosts           Show targeted hosts' \
-		'  make list-tasks           Show playbook task list' \
-		'  make base                 Baseline packages and system settings' \
-		'  make update               Baseline package updates only' \
-		'  make fonts                Install terminal fonts' \
-		'  make git                  Configure per-host git identity' \
-		'  make cli                  Shared shell, tmux, neovim, and CLI helpers' \
-		'  make dev-go               Go development tools' \
-		'  make apps                 Personal and work GUI applications' \
-		'  make personal-apps        Personal GUI applications' \
-		'  make work-apps            Work GUI applications' \
-		'  make personal             Run personal-machine slice' \
-		'  make work                 Run work-machine slice' \
-		'  make vm                   Run temporary VM slice'
+	@awk '/^## /{desc=substr($$0,4); next} /^[a-zA-Z_-]+:/{if (desc!="") {printf "  %-20s %s\n", $$1, desc}; desc=""}' $(MAKEFILE_LIST)
 
+## Run the full site playbook
 run:
 	$(ANSIBLE)
 
+## Dry-run the full playbook
 check:
 	$(MAKE) run CHECK=1
 
+## Dry-run with diffs
 diff:
 	$(MAKE) run CHECK=1 DIFF=1
 
+## Run against a host over local connection (LIMIT=host)
 local:
 	ansible-playbook $(ANSIBLE_ARGS) --connection local --ask-become-pass $(PLAYBOOK)
 
+## Run ansible syntax check
 syntax:
 	ansible-playbook -i $(INVENTORY) --syntax-check $(PLAYBOOK)
 
+## Show targeted hosts
 list-hosts:
 	ansible-playbook -i $(INVENTORY) $(LIMIT_FLAG) --list-hosts $(PLAYBOOK)
 
+## Show playbook task list
 list-tasks:
 	ansible-playbook -i $(INVENTORY) $(LIMIT_FLAG) $(TAGS_FLAG) --list-tasks $(PLAYBOOK)
 
+## Baseline packages and system settings
 base:
 	$(MAKE) run TAGS=base
 
+## Baseline package updates only
 update:
 	$(MAKE) run TAGS=update
 
+## Install terminal fonts
 fonts:
 	$(MAKE) run TAGS=fonts
 
+## Configure per-host git identity and signing
 git:
 	$(MAKE) run TAGS=git
 
+## Shared shell, tmux, and CLI helpers
 cli:
 	$(MAKE) run TAGS=cli
 
+## Go development tools
 dev-go:
 	$(MAKE) run TAGS=dev-go
 
+## Personal and work GUI applications
 apps:
 	$(MAKE) run TAGS=apps
 
+## Personal GUI applications
 personal-apps:
 	$(MAKE) run TAGS=personal-apps
 
+## Work GUI applications
 work-apps:
 	$(MAKE) run TAGS=work-apps
 
+## Run personal-machine slice
 personal:
 	$(MAKE) run LIMIT=personal
 
+## Run work-machine slice
 work:
 	$(MAKE) run LIMIT=work
 
+## Run temporary VM slice
 vm:
 	$(MAKE) run LIMIT=vm
