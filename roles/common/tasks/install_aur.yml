@@ -1,7 +1,22 @@
 - name: Ensure AUR helper (yay) is available
   ansible.builtin.include_tasks: ensure_aur_helper.yml
 
+- name: Create sudo askpass helper for yay
+  ansible.builtin.copy:
+    content: |
+      #!/bin/bash
+      echo "{{ ansible_become_password }}"
+    dest: /tmp/ansible_askpass.sh
+    mode: "0700"
+
 - name: Install AUR packages with yay
   ansible.builtin.command:
-    cmd: "yay -S --noconfirm --needed {{ packages['archlinux_aur'] | join(' ') }}"
+    cmd: "yay -S --noconfirm --needed --sudoflags '-A' {{ packages['archlinux_aur'] | join(' ') }}"
+  environment:
+    SUDO_ASKPASS: /tmp/ansible_askpass.sh
   changed_when: true
+
+- name: Remove sudo askpass helper
+  ansible.builtin.file:
+    path: /tmp/ansible_askpass.sh
+    state: absent
