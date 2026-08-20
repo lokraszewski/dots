@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Askpass helper for yay's inner sudo. Contains no secret: the password is
+# fetched from Bitwarden at prompt time. Requires BW_SESSION in the
+# environment (preserved across sudo via a transient env_keep rule).
+
+if [[ -z "${BW_SESSION:-}" ]]; then
+	echo "Bitwarden session not found. Run: bw login && bw unlock" >&2
+	exit 1
+fi
+
+bw get password ansible-sudo-{{ inventory_hostname }}

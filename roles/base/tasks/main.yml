@@ -21,14 +21,13 @@
 
 - name: Update packages
   ansible.builtin.include_tasks:
-    file: "update/{{ 'darwin' if ansible_facts['system'] == 'Darwin' else ansible_facts['distribution'] | lower }}.yml"
+    file: "update/{{ ansible_facts['distribution'] }}.yml"
   tags:
     - update
 
 - name: Install packages
-  include_role:
-    name: common
-    tasks_from: install
+  ansible.builtin.include_tasks:
+    file: "install/{{ ansible_facts['distribution'] }}.yml"
   tags:
     - packages
 

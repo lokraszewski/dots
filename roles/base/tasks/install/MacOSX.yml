@@ -1,0 +1,7 @@
+- name: Install packages via Homebrew
+  community.general.homebrew:
+    name:
+      - curl
+      - wget
+      - fish
+    state: present

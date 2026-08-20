@@ -1,0 +1,12 @@
+- name: Install packages via Homebrew
+  community.general.homebrew:
+    name:
+      - gh
+      - kubectl
+      - k9s
+      - awscli
+      - azure-cli
+      - terraform
+      - opentofu
+      - google-cloud-sdk
+    state: present

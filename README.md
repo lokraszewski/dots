@@ -22,11 +22,11 @@ Personal machines, work development machines, and temporary dev VMs managed with
 │   ├── tmux/                  # tmux config, TPM, powerkit, localremote plugin
 │   ├── dev/                   # cloud and IaC tools: gh, kubectl, k9s, aws, gcp, azure, terraform, tofu
 │   ├── dev_go/                # Go language toolchain
-│   ├── apps/                  # personal and work GUI applications
-│   └── common/                # shared install helpers (pacman, AUR, Flatpak, Homebrew)
+│   └── apps/                  # personal and work GUI applications
 ├── scripts/
 │   ├── bwunlock.sh
 │   └── vaultpass.sh
+├── requirements.yml
 ├── site.yml
 └── Makefile
 ```
@@ -57,21 +57,55 @@ Add temporary dev machines under `vm.hosts` — they get `base`, `font`, `git`, 
 
 ## Package Management
 
-Each role declares its own package lists in `defaults/main.yml`:
+Each role's `tasks/main.yml` includes `tasks/install/{{ ansible_facts['distribution'] }}.yml`, so `install/Archlinux.yml` and `install/MacOSX.yml` hold the OS-specific install steps — package lists included, declared inline on the install task. The file names match the `distribution` fact verbatim, so no ternary or case conversion is needed. `base` follows the same pattern for its `update/` step.
 
 ```yaml
-packages:
-  archlinux:
-    - some-package
-  archlinux_aur:
-    - aur-only-package
-  flatpak:
-    - org.example.App
-  darwin:
-    - homebrew-package
+# roles/<role>/tasks/install/Archlinux.yml
+- name: Install packages via pacman
+  become: true
+  community.general.pacman:
+    name:
+      - some-package
+    state: present
 ```
 
-`common/tasks/install.yml` dispatches to the right installer. AUR installs use `yay` (bootstrapped automatically if absent). Flatpak installs ensure the Flathub remote is registered first.
+```yaml
+# roles/<role>/tasks/install/MacOSX.yml
+- name: Install packages via Homebrew
+  community.general.homebrew:
+    name:
+      - homebrew-package
+    state: present
+```
+
+To add a package, edit the list in the relevant role's `install/Archlinux.yml` or `install/MacOSX.yml`. Only the `apps` role handles AUR and Flatpak; the other roles install through `pacman` or Homebrew only.
+
+The `apps` role serves both personal and work machines from one play, with each task gated on `group_names` (`when: "'personal' in group_names"`), so a host installs only the apps for the groups it belongs to.
+
+The `base` role installs the tooling the other roles rely on: `flatpak`, and `yay` bootstrapped from the AUR. AUR installs then go through the [`mnussbaum.ansible_yay`](https://github.com/mnussbaum/ansible-yay) collection, and Flatpak installs register the Flathub remote before installing.
+
+### AUR sudo password
+
+`yay` shells out to `sudo` for the pacman transaction, which needs a password that Ansible's own become channel cannot supply. Rather than writing the password to the host, `roles/apps/templates/sudopass.sh.j2` is rendered onto the target as a sudo askpass helper — it contains no secret, only a `bw get password` lookup, so the password is fetched from Bitwarden at prompt time and never written to disk.
+
+The item name is per-host, rendered as `ansible-sudo-{{ inventory_hostname }}`. Each Arch host therefore needs its own Bitwarden item holding that host's sudo password:
+
+| Host | Bitwarden item |
+| --- | --- |
+| `icewind` | `ansible-sudo-icewind` |
+| `mithril` | `ansible-sudo-mithril` |
+
+`BW_SESSION` must be exported (the AUR task asserts this up front). During the AUR task only, a `Defaults env_keep += "BW_SESSION"` drop-in and a `/etc/sudo.conf` askpass line are added; both are removed in an `always` block, along with the helper script.
+
+## Prerequisites
+
+Install the collection dependencies before the first run:
+
+```sh
+make deps
+```
+
+Nothing else is needed on the target. The `base` role installs `flatpak` and bootstraps `yay` on Arch hosts: if `yay` is absent it clones `yay-bin`, builds it with `makepkg` as your unprivileged user, and installs the resulting package with `become: true`. That split means the bootstrap needs no askpass helper — Ansible's own become supplies the password.
 
 ## Secrets and Identity
 

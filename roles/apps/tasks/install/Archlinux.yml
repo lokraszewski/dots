@@ -1,0 +1,89 @@
+- name: Install personal apps via pacman
+  become: true
+  community.general.pacman:
+    name:
+      - bitwarden-cli
+    state: present
+  when: "'personal' in group_names"
+
+- name: Install personal AUR apps
+  when: "'personal' in group_names"
+  block:
+    - name: Require an unlocked Bitwarden session for the AUR sudo helper
+      ansible.builtin.assert:
+        that:
+          - lookup('env', 'BW_SESSION') | length > 0
+        fail_msg: >-
+          BW_SESSION is not set. yay's sudo password is read from Bitwarden at
+          prompt time. Run: bw unlock, then export BW_SESSION.
+
+    - name: Install sudo askpass helper
+      ansible.builtin.template:
+        src: sudopass.sh.j2
+        dest: /tmp/sudopass.sh
+        mode: "0700"
+
+    - name: Point sudo at the askpass helper
+      become: true
+      ansible.builtin.blockinfile:
+        path: /etc/sudo.conf
+        create: true
+        mode: "0644"
+        marker: "# {mark} ANSIBLE MANAGED - aur askpass"
+        block: "Path askpass /tmp/sudopass.sh"
+
+    - name: Preserve BW_SESSION across sudo so the helper can reach Bitwarden
+      become: true
+      ansible.builtin.copy:
+        content: |
+          Defaults env_keep += "BW_SESSION"
+        dest: /etc/sudoers.d/10-ansible-bw-session
+        mode: "0440"
+        validate: visudo -cf %s
+
+    - name: Install AUR packages with yay
+      become: true
+      environment:
+        BW_SESSION: "{{ lookup('env', 'BW_SESSION') }}"
+      mnussbaum.ansible_yay.yay:
+        name:
+          - zen-browser-bin
+        state: present
+  always:
+    - name: Stop preserving BW_SESSION across sudo
+      become: true
+      ansible.builtin.file:
+        path: /etc/sudoers.d/10-ansible-bw-session
+        state: absent
+
+    - name: Stop pointing sudo at the askpass helper
+      become: true
+      ansible.builtin.blockinfile:
+        path: /etc/sudo.conf
+        marker: "# {mark} ANSIBLE MANAGED - aur askpass"
+        state: absent
+
+    - name: Remove askpass helper
+      ansible.builtin.file:
+        path: /tmp/sudopass.sh
+        state: absent
+
+- name: Add Flathub remote (user)
+  community.general.flatpak_remote:
+    name: flathub
+    flatpakrepo_url: https://dl.flathub.org/repo/flathub.flatpakrepo
+    state: present
+    method: user
+  when: "'personal' in group_names"
+
+- name: Install personal Flatpak apps
+  community.general.flatpak:
+    name: "{{ item }}"
+    state: present
+    method: user
+  loop:
+    - md.obsidian.Obsidian
+    - org.signal.Signal
+    - org.videolan.VLC
+    - com.discordapp.Discord
+  when: "'personal' in group_names"

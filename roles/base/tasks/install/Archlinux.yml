@@ -1,0 +1,52 @@
+- name: Install packages via pacman
+  become: true
+  community.general.pacman:
+    name:
+      - curl
+      - wget
+      - unzip
+      - ca-certificates
+      - zsh
+      - fish
+      - git
+      - base-devel
+      - flatpak
+    state: present
+
+- name: Check whether yay is installed
+  ansible.builtin.command: which yay
+  register: yay_check
+  changed_when: false
+  failed_when: false
+
+- name: Bootstrap yay from the AUR
+  when: yay_check.rc != 0
+  block:
+    - name: Clone yay-bin from the AUR
+      ansible.builtin.git:
+        repo: https://aur.archlinux.org/yay-bin.git
+        dest: /tmp/yay-build
+        depth: 1
+
+    - name: Build yay-bin unprivileged
+      ansible.builtin.command:
+        cmd: makepkg --noconfirm --nodeps --force
+        chdir: /tmp/yay-build
+      changed_when: true
+
+    - name: Find the built yay package
+      ansible.builtin.find:
+        paths: /tmp/yay-build
+        patterns: "*.pkg.tar.zst"
+      register: yay_built
+
+    - name: Install the built yay package
+      become: true
+      community.general.pacman:
+        name: "{{ yay_built.files | map(attribute='path') | list }}"
+        state: present
+  always:
+    - name: Remove the yay build directory
+      ansible.builtin.file:
+        path: /tmp/yay-build
+        state: absent

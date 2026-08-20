@@ -1,0 +1,9 @@
+- name: Install packages via pacman
+  become: true
+  community.general.pacman:
+    name:
+      - bat
+      - fd
+      - inetutils
+      - tmux
+    state: present

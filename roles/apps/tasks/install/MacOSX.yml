@@ -1,0 +1,10 @@
+- name: Install personal apps via Homebrew
+  community.general.homebrew:
+    name:
+      - obsidian
+      - signal
+      - vlc
+      - bitwarden-cli
+      - discord
+    state: present
+  when: "'personal' in group_names"

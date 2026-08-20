@@ -29,11 +29,15 @@ ANSIBLE_ARGS = -i $(INVENTORY) \
 
 ANSIBLE = ansible-playbook $(ANSIBLE_ARGS) $(PLAYBOOK)
 
-.PHONY: help run check diff local syntax list-hosts list-tasks base update fonts git cli dev-go apps personal-apps work-apps personal work vm
+.PHONY: help deps run check diff local syntax list-hosts list-tasks base update fonts git cli dev-go apps personal-apps work-apps personal work vm
 
 ## Show this help
 help:
 	@awk '/^## /{desc=substr($$0,4); next} /^[a-zA-Z_-]+:/{if (desc!="") {printf "  %-20s %s\n", $$1, desc}; desc=""}' $(MAKEFILE_LIST)
+
+## Install Ansible collection dependencies
+deps:
+	ansible-galaxy collection install -r requirements.yml
 
 ## Run the full site playbook
 run:

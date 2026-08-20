@@ -1,7 +1,1 @@
-packages:
-  archlinux:
-    - git
-  darwin:
-    - git
-
 git_identities: {}

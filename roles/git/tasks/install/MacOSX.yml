@@ -1,0 +1,5 @@
+- name: Install packages via Homebrew
+  community.general.homebrew:
+    name:
+      - git
+    state: present

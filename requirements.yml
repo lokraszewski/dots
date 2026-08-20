@@ -1,0 +1,3 @@
+collections:
+  - name: mnussbaum.ansible_yay
+    version: ">=1.0.1"

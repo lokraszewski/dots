@@ -1,0 +1,12 @@
+- name: Install packages via pacman
+  become: true
+  community.general.pacman:
+    name:
+      - github-cli
+      - kubectl
+      - k9s
+      - aws-cli
+      - azure-cli
+      - terraform
+      - opentofu
+    state: present

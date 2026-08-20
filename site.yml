@@ -47,26 +47,14 @@
   roles:
     - dev
 
-- name: Configure personal GUI applications
-  hosts: personal
+- name: Configure GUI applications
+  hosts: desktop
   tags:
     - apps
     - gui
     - personal
     - personal-apps
-  roles:
-    - role: apps
-      vars:
-        packages: "{{ personal_apps }}"
-
-- name: Configure work GUI applications
-  hosts: work
-  tags:
-    - apps
-    - gui
     - work
     - work-apps
   roles:
-    - role: apps
-      vars:
-        packages: "{{ work_apps }}"
+    - apps

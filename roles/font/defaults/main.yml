@@ -1,9 +1,3 @@
-packages:
-  archlinux:
-    - ttf-jetbrains-mono-nerd
-  darwin:
-    - font-jetbrains-mono-nerd-font
-
 terminal_font_name: JetBrainsMono Nerd Font Mono
 
 vscode_font_settings:

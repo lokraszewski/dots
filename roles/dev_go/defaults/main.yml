@@ -1,5 +1,0 @@
-packages:
-  archlinux:
-    - go
-  darwin:
-    - go

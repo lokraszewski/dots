@@ -2,8 +2,7 @@
   ansible.builtin.setup:
 
 - name: Install packages
-  include_role:
-    name: common
-    tasks_from: install
+  ansible.builtin.include_tasks:
+    file: "install/{{ ansible_facts['distribution'] }}.yml"
   tags:
     - packages

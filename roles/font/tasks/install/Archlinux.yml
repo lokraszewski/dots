@@ -1,0 +1,6 @@
+- name: Install packages via pacman
+  become: true
+  community.general.pacman:
+    name:
+      - ttf-jetbrains-mono-nerd
+    state: present
