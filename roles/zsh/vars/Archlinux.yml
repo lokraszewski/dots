@@ -1,0 +1,2 @@
+# Arch's zsh reads global startup files from /etc/zsh/
+zsh_global_zshenv: /etc/zsh/zshenv

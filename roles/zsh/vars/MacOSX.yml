@@ -1,0 +1,2 @@
+# macOS reads its global zshenv straight from /etc/
+zsh_global_zshenv: /etc/zshenv

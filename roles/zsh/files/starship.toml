@@ -1,0 +1,41 @@
+"$schema" = 'https://starship.rs/config-schema.json'
+
+add_newline = false
+
+# git_branch/git_status are deliberately absent: the tmux status bar already
+# shows git state via powerkit's group(git,github).
+format = "$directory$os$nodejs$rust$golang$php $character"
+
+[os]
+disabled = false
+format = "[$symbol](#blue) "
+
+[os.symbols]
+Arch   = "󰣇"
+Macos  = ""
+
+[directory]
+format            = "[$path](cyan) "
+truncation_length = 4
+truncate_to_repo  = true
+
+[nodejs]
+symbol = ""
+format = "[$symbol $version](green) "
+
+[rust]
+symbol = ""
+format = "[$symbol $version](red) "
+
+[golang]
+symbol = ""
+format = "[$symbol $version](cyan) "
+
+[php]
+symbol = ""
+format = "[$symbol $version](purple) "
+
+[character]
+success_symbol = "[❯](green)"
+error_symbol   = "[❯](red)"
+vimcmd_symbol  = "[❮](blue)"

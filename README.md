@@ -14,11 +14,13 @@ Personal machines, work development machines, and temporary dev VMs managed with
 │   ├── main.yml               # public host settings
 │   └── vault.yml              # encrypted per-host secrets
 ├── roles/
-│   ├── base/                  # baseline packages, package updates, time sync, timezone, shell
+│   ├── base/                  # baseline packages, package updates, time sync, timezone
 │   ├── font/                  # fonts (JetBrainsMono Nerd Font)
 │   ├── foot/                  # foot terminal emulator config
 │   ├── git/                   # per-host git identity and configs
-│   ├── cli/                   # shared CLI tools: bat, fd, inetutils, tmux
+│   ├── cli/                   # shared CLI tools: bat, fd, neovim, ripgrep, tmux
+│   ├── shell/                 # installs zsh, sets it as the login shell
+│   ├── zsh/                   # zsh config under ~/.config/zsh (ZDOTDIR)
 │   ├── tmux/                  # tmux config, TPM, powerkit, localremote plugin
 │   ├── dev/                   # cloud and IaC tools: gh, kubectl, k9s, aws, gcp, azure, terraform, tofu
 │   ├── dev_go/                # Go language toolchain
@@ -42,7 +44,7 @@ Host grouping lives in `inventory/hosts.yml`. Connection details for each host l
 | `work` | Work machines. Receives work GUI apps. |
 | `vm` | Temporary dev VMs. Gets CLI setup, but no GUI apps. |
 | `desktop` | Children: `personal`, `work`. GUI-capable machines. |
-| `cli` | Children: `desktop`, `vm`. Receives fish, tmux, and CLI helpers. |
+| `cli` | Children: `desktop`, `vm`. Receives zsh, tmux, and CLI helpers. |
 | `dev_go` | Children: `personal`, `work`. Receives the Go toolchain. |
 | `dev` | Children: `personal`, `work`. Receives cloud/k8s/IaC tools. |
 
@@ -96,6 +98,21 @@ The item name is per-host, rendered as `ansible-sudo-{{ inventory_hostname }}`. 
 | `mithril` | `ansible-sudo-mithril` |
 
 `BW_SESSION` must be exported (the AUR task asserts this up front). During the AUR task only, a `Defaults env_keep += "BW_SESSION"` drop-in and a `/etc/sudo.conf` askpass line are added; both are removed in an `always` block, along with the helper script.
+
+## Shell
+
+The [`shell`](roles/shell) role installs zsh, registers it in `/etc/shells`, and sets it as the login shell. The [`zsh`](roles/zsh) role deploys the configuration — adapted from [radleylewis/zsh](https://github.com/radleylewis/zsh) — with everything under `~/.config`:
+
+| Path | Contents |
+| --- | --- |
+| `~/.config/zsh/` | `ZDOTDIR` — all zsh config files |
+| `~/.config/zsh/plugins/` | plugins, cloned on first shell launch |
+| `~/.local/state/zsh/history` | history file |
+| `~/.cache/zsh/zcompdump` | completion cache |
+
+A global zshenv (`/etc/zsh/zshenv` on Arch, `/etc/zshenv` on macOS) exports `XDG_CONFIG_HOME` and points `ZDOTDIR` at `~/.config/zsh`, so no zsh dotfiles land in `$HOME`. It is written behind a `blockinfile` marker, so an existing file is appended to rather than replaced.
+
+Plugins install themselves on first launch; `zplugin-update` updates them. `~/.config/zsh/local.zsh` is sourced if present and is never deployed, so use it for machine-local overrides.
 
 ## Prerequisites
 

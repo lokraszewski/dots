@@ -3,5 +3,4 @@
     name:
       - curl
       - wget
-      - fish
     state: present

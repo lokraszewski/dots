@@ -29,7 +29,7 @@ ANSIBLE_ARGS = -i $(INVENTORY) \
 
 ANSIBLE = ansible-playbook $(ANSIBLE_ARGS) $(PLAYBOOK)
 
-.PHONY: help deps run check diff local syntax list-hosts list-tasks base update fonts git cli dev-go apps personal-apps work-apps personal work vm
+.PHONY: help deps run check diff local syntax list-hosts list-tasks base update fonts git cli zsh dev-go apps personal-apps work-apps personal work vm
 
 ## Show this help
 help:
@@ -86,6 +86,10 @@ git:
 ## Shared shell, tmux, and CLI helpers
 cli:
 	$(MAKE) run TAGS=cli
+
+## zsh install and configuration
+zsh:
+	$(MAKE) run TAGS=zsh
 
 ## Go development tools
 dev-go:

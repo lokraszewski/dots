@@ -6,8 +6,6 @@
       - wget
       - unzip
       - ca-certificates
-      - zsh
-      - fish
       - git
       - base-devel
       - flatpak

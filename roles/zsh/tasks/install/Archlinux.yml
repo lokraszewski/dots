@@ -2,10 +2,8 @@
   become: true
   community.general.pacman:
     name:
-      - bat
-      - fd
-      - inetutils
-      - tmux
-      - neovim
-      - ripgrep
+      - starship
+      - zoxide
+      - fzf
+      - eza
     state: present

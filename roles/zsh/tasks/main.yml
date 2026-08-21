@@ -1,0 +1,52 @@
+- name: Gather facts
+  ansible.builtin.setup:
+
+- name: Load distribution-specific vars
+  ansible.builtin.include_vars: "{{ ansible_facts['distribution'] }}.yml"
+
+- name: Install packages
+  ansible.builtin.include_tasks:
+    file: "install/{{ ansible_facts['distribution'] }}.yml"
+  tags:
+    - packages
+
+- name: Create zsh directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - "{{ zsh_config_dir }}"
+    - "{{ ansible_facts['user_dir'] }}/.local/state/zsh"
+    - "{{ ansible_facts['user_dir'] }}/.cache/zsh"
+
+- name: Point zsh at the XDG config directory
+  become: true
+  ansible.builtin.blockinfile:
+    path: "{{ zsh_global_zshenv }}"
+    create: true
+    mode: "0644"
+    marker: "# {mark} ANSIBLE MANAGED - zdotdir"
+    block: |
+      if [[ -z "$XDG_CONFIG_HOME" ]]; then
+          export XDG_CONFIG_HOME="$HOME/.config"
+      fi
+
+      if [[ -d "$XDG_CONFIG_HOME/zsh" ]]; then
+          export ZDOTDIR="$XDG_CONFIG_HOME/zsh"
+      fi
+
+- name: Deploy zsh config
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "{{ zsh_config_dir }}/{{ item }}"
+    mode: "0644"
+  loop:
+    - .zshenv
+    - .zshrc
+    - aliases.zsh
+    - bindings.zsh
+    - fzf.zsh
+    - plugins.zsh
+    - prompt.zsh
+    - starship.toml

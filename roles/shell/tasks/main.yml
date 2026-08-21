@@ -1,0 +1,26 @@
+- name: Gather facts
+  ansible.builtin.setup:
+
+- name: Install packages
+  ansible.builtin.include_tasks:
+    file: "install/{{ ansible_facts['distribution'] }}.yml"
+  tags:
+    - packages
+
+- name: Get zsh path
+  ansible.builtin.command: which zsh
+  register: zsh_path
+  changed_when: false
+
+- name: Ensure zsh is registered as a valid shell
+  become: true
+  ansible.builtin.lineinfile:
+    path: /etc/shells
+    line: "{{ zsh_path.stdout }}"
+    state: present
+
+- name: Set zsh as the default shell
+  become: true
+  ansible.builtin.user:
+    name: "{{ ansible_facts['user_id'] }}"
+    shell: "{{ zsh_path.stdout }}"

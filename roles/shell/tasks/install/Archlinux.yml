@@ -2,10 +2,5 @@
   become: true
   community.general.pacman:
     name:
-      - bat
-      - fd
-      - inetutils
-      - tmux
-      - neovim
-      - ripgrep
+      - zsh
     state: present

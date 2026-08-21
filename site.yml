@@ -28,6 +28,12 @@
     - shell
   roles:
     - cli
+    - role: shell
+      tags:
+        - zsh
+    - role: zsh
+      tags:
+        - zsh
     - role: tmux
       tags:
         - tmux
