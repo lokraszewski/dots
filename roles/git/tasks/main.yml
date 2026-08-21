@@ -1,17 +1,37 @@
 - name: Gather facts
   ansible.builtin.setup:
 
+- name: Ensure git config directory exists
+  ansible.builtin.file:
+    path: "{{ ansible_facts['user_dir'] }}/.config/git"
+    state: directory
+    mode: "0755"
+
+# git writes --global to ~/.gitconfig whenever that file exists, and only falls
+# back to the XDG path when it does not. Migrating must therefore happen before
+# any git_config task below, or those tasks recreate ~/.gitconfig.
+- name: Migrate gitconfig to XDG location
+  ansible.builtin.command:
+    cmd: mv {{ ansible_facts['user_dir'] }}/.gitconfig {{ ansible_facts['user_dir'] }}/.config/git/config
+    creates: "{{ ansible_facts['user_dir'] }}/.config/git/config"
+    removes: "{{ ansible_facts['user_dir'] }}/.gitconfig"
+
 - name: Deploy gitaliases
   ansible.builtin.copy:
     src: gitaliases
-    dest: "{{ ansible_facts['user_dir'] }}/.gitaliases"
+    dest: "{{ ansible_facts['user_dir'] }}/.config/git/aliases"
     mode: "0644"
 
 - name: Include gitaliases from gitconfig
   community.general.git_config:
     name: include.path
-    value: "~/.gitaliases"
+    value: "~/.config/git/aliases"
     scope: global
+
+- name: Remove pre-XDG gitaliases
+  ansible.builtin.file:
+    path: "{{ ansible_facts['user_dir'] }}/.gitaliases"
+    state: absent
 
 - name: Install packages
   ansible.builtin.include_tasks:

@@ -10,13 +10,20 @@
 
 - name: Write terminal font recommendation
   ansible.builtin.copy:
-    dest: "{{ ansible_facts['env']['HOME'] }}/.terminal-font"
+    dest: "{{ ansible_facts['user_dir'] }}/.config/terminal-font"
     content: |
       {{ terminal_font_name }}
       Recommended for:
-      - Fish shell
+      - zsh
       - tmux
       - starship prompt
+    mode: "0644"
   tags:
     - fonts
 
+- name: Remove pre-XDG terminal font note
+  ansible.builtin.file:
+    path: "{{ ansible_facts['user_dir'] }}/.terminal-font"
+    state: absent
+  tags:
+    - fonts

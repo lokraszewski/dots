@@ -1,13 +1,31 @@
+- name: Gather facts
+  ansible.builtin.setup:
+
+- name: Ensure tmux config directory exists
+  ansible.builtin.file:
+    path: "{{ ansible_facts['user_dir'] }}/.config/tmux"
+    state: directory
+    mode: "0755"
+
 - name: Clone TPM (Tmux Plugin Manager)
   ansible.builtin.git:
     repo: https://github.com/tmux-plugins/tpm
-    dest: "{{ ansible_facts['user_dir'] }}/.tmux/plugins/tpm"
+    dest: "{{ ansible_facts['user_dir'] }}/.config/tmux/plugins/tpm"
     depth: 1
     update: true
 
 - name: Deploy tmux config
   ansible.builtin.copy:
     src: tmux.conf
-    dest: "{{ ansible_facts['user_dir'] }}/.tmux.conf"
+    dest: "{{ ansible_facts['user_dir'] }}/.config/tmux/tmux.conf"
     mode: "0644"
 
+# tmux loads ~/.tmux.conf *or* the XDG path, whichever it finds first, so the
+# old locations must go or the XDG config is never read.
+- name: Remove pre-XDG tmux locations
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - "{{ ansible_facts['user_dir'] }}/.tmux.conf"
+    - "{{ ansible_facts['user_dir'] }}/.tmux"

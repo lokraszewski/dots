@@ -99,6 +99,25 @@ The item name is per-host, rendered as `ansible-sudo-{{ inventory_hostname }}`. 
 
 `BW_SESSION` must be exported (the AUR task asserts this up front). During the AUR task only, a `Defaults env_keep += "BW_SESSION"` drop-in and a `/etc/sudo.conf` askpass line are added; both are removed in an `always` block, along with the helper script.
 
+## XDG Layout
+
+Config is kept under `~/.config` rather than scattered across `$HOME`. Roles write to the XDG path and remove the pre-XDG location, so a re-run migrates an existing machine:
+
+| Config | Path |
+| --- | --- |
+| zsh | `~/.config/zsh/` (`ZDOTDIR`) |
+| tmux | `~/.config/tmux/tmux.conf`, plugins in `~/.config/tmux/plugins/` |
+| git | `~/.config/git/config`, `~/.config/git/aliases`, `~/.config/git/ignore` |
+| foot | `~/.config/foot/foot.ini` |
+| font note | `~/.config/terminal-font` |
+
+Two caveats worth knowing:
+
+- **tmux** loads `~/.tmux.conf` *or* `$XDG_CONFIG_HOME/tmux/tmux.conf`, whichever it finds first — so the old file must be deleted, not just superseded.
+- **git** writes `--global` to `~/.gitconfig` whenever that file exists, falling back to the XDG path only when it does not. The git role therefore moves `~/.gitconfig` before any `git_config` task runs.
+
+`~/.ssh/allowed_signers` stays in `~/.ssh`: OpenSSH has no XDG support.
+
 ## Shell
 
 The [`shell`](roles/shell) role installs zsh, registers it in `/etc/shells`, and sets it as the login shell. The [`zsh`](roles/zsh) role deploys the configuration — adapted from [radleylewis/zsh](https://github.com/radleylewis/zsh) — with everything under `~/.config`:
