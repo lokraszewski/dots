@@ -1,0 +1,2 @@
+# TPM installs plugins here; must match TMUX_PLUGIN_MANAGER_PATH in files/tmux.conf.
+tmux_plugin_dir: "{{ ansible_facts['user_dir'] }}/.config/tmux/plugins"

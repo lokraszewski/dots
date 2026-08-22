@@ -29,3 +29,26 @@
   loop:
     - "{{ ansible_facts['user_dir'] }}/.tmux.conf"
     - "{{ ansible_facts['user_dir'] }}/.tmux"
+
+# tmux-powerkit 7.1.0 ships a github plugin whose plugin_collect() ends on a
+# bare `[[ "$outcome" == "transport_error" ]] && return 1`. On a successful
+# collection the test is false, so the failed test becomes the function's exit
+# status and plugin_collect returns 1 every single time. The runner does
+# `plugin_collect || exit 1`, so plugin_render never runs and the segment falls
+# back to rendering the literal "unauthenticated" no matter what `gh auth
+# status` says. No upstream fix as of 7.1.0; a plugin update (prefix + U)
+# reverts this, so the task reapplies it on every run.
+#
+# The regexp stops matching once the function has a trailing return, so this is
+# a no-op against a fixed upstream and safe to leave in place.
+- name: Check whether the powerkit github plugin is installed
+  ansible.builtin.stat:
+    path: "{{ tmux_plugin_dir }}/tmux-powerkit/src/plugins/github.sh"
+  register: tmux_powerkit_github
+
+- name: Patch powerkit github plugin_collect to return success
+  ansible.builtin.replace:
+    path: "{{ tmux_plugin_dir }}/tmux-powerkit/src/plugins/github.sh"
+    regexp: '^(\s*\[\[ "\$outcome" == "transport_error" \]\] && return 1)\n\}$'
+    replace: '\1\n    return 0\n}'
+  when: tmux_powerkit_github.stat.exists
