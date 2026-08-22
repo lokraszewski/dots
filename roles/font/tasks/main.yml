@@ -8,6 +8,8 @@
     - packages
     - fonts
 
+
+# For VS Code, set the font in the settings.json file as 'JetBrainsMono Nerd Font Mono'.
 - name: Write terminal font recommendation
   ansible.builtin.copy:
     dest: "{{ ansible_facts['user_dir'] }}/.config/terminal-font"
