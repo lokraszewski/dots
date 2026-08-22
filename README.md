@@ -166,9 +166,13 @@ The repo uses `scripts/vaultpass.sh` (via `ansible.cfg`) to unlock vault data th
 
 ```sh
 bw login
-bw unlock
-export BW_SESSION="your-session-token"
+source ./scripts/bwunlock.sh   # exports BW_SESSION, no-op if already unlocked
 ```
+
+`BW_SESSION` has to live in your shell, not in a recipe, so source the script
+rather than running it. The make targets that invoke ansible depend on
+`bw-check`, which fails with these instructions when the session is missing or
+stale.
 
 Useful vault commands:
 

@@ -29,7 +29,7 @@ ANSIBLE_ARGS = -i $(INVENTORY) \
 
 ANSIBLE = ansible-playbook $(ANSIBLE_ARGS) $(PLAYBOOK)
 
-.PHONY: help deps run check diff local syntax list-hosts list-tasks base update fonts git cli zsh dev-go apps personal-apps work-apps personal work vm
+.PHONY: help deps bw-check run check diff local syntax list-hosts list-tasks base update fonts git cli zsh dev-go apps personal-apps work-apps personal work vm
 
 ## Show this help
 help:
@@ -39,8 +39,26 @@ help:
 deps:
 	ansible-galaxy collection install -r requirements.yml
 
+## Verify an unlocked Bitwarden session is exported
+bw-check:
+	@if [ -z "$$BW_SESSION" ]; then \
+		echo "BW_SESSION is not set. ansible reads the vault password from"; \
+		echo "Bitwarden (scripts/vaultpass.sh), so unlock it in this shell first:"; \
+		echo; \
+		echo "    source ./scripts/bwunlock.sh"; \
+		echo; \
+		exit 1; \
+	elif ! bw unlock --check >/dev/null 2>&1; then \
+		echo "BW_SESSION is set but the vault is locked or the session is stale."; \
+		echo "Refresh it in this shell:"; \
+		echo; \
+		echo "    unset BW_SESSION && source ./scripts/bwunlock.sh"; \
+		echo; \
+		exit 1; \
+	fi
+
 ## Run the full site playbook
-run:
+run: bw-check
 	$(ANSIBLE)
 
 ## Dry-run the full playbook
@@ -52,19 +70,19 @@ diff:
 	$(MAKE) run CHECK=1 DIFF=1
 
 ## Run against a host over local connection (LIMIT=host)
-local:
+local: bw-check
 	ansible-playbook $(ANSIBLE_ARGS) --connection local --ask-become-pass $(PLAYBOOK)
 
 ## Run ansible syntax check
-syntax:
+syntax: bw-check
 	ansible-playbook -i $(INVENTORY) --syntax-check $(PLAYBOOK)
 
 ## Show targeted hosts
-list-hosts:
+list-hosts: bw-check
 	ansible-playbook -i $(INVENTORY) $(LIMIT_FLAG) --list-hosts $(PLAYBOOK)
 
 ## Show playbook task list
-list-tasks:
+list-tasks: bw-check
 	ansible-playbook -i $(INVENTORY) $(LIMIT_FLAG) $(TAGS_FLAG) --list-tasks $(PLAYBOOK)
 
 ## Baseline packages and system settings
